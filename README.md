@@ -48,7 +48,14 @@ closeplot!(plot)
 ```julia
 using ConvergencePlots
 
-plot = ConvergencePlot(names = ["KKT residual", "|Δx|", "|Δf|"])
+plot = ConvergencePlot(
+    names = ["KKT residual", "|Δx|", "|Δf|"],
+    options = Dict(
+        "KKT residual" => (color = "red",),
+        "|Δx|" => (color = "blue",),
+        "|Δf|" => (color = "black",),
+    ),
+)
 kkt = 1 ./ (1:50)
 Δx = 0.1 .* sqrt.(kkt)
 Δf = 10 .* kkt .^ 2
@@ -65,4 +72,4 @@ for i in 1:50
 end
 ```
 
-![Figure](https://user-images.githubusercontent.com/19524993/90658822-5acbf600-e287-11ea-9884-c9c7024a8faf.png)
+![Figure](https://user-images.githubusercontent.com/19524993/90662813-30c90280-e28c-11ea-88c1-7e1370d117b4.png)

@@ -5,7 +5,7 @@ export  ConvergencePlot,
         update_plot!,
         closeplot!
 
-using PyPlot, Parameters
+using PyPlot, Parameters, Random
 
 mutable struct ConvergencePlot
     fig
@@ -104,7 +104,12 @@ function emptyplot(ncurves)
     return fig, axs
 end
 
+randcolor(rng) = (rand(rng), rand(), rand()) .* 0.7
+
 function getoptions(names, old_options)
+    rng = Random.MersenneTwister()
+    Random.seed!(rng, 12344321)
+
     options = Dict()
     if old_options === nothing
         for n in names
@@ -126,26 +131,18 @@ function getoptions(names, old_options)
     for i in 1:(length(names) ÷ 2)
         n1, n2 = names[2i - 1], names[2i]
         if !(haskey(options[n2], :color))
-            if haskey(options[n1], :color)
-                color = options[n1].color == "tab:red" ? "tab:blue" : "tab:red"
-            else
-                color = "tab:red"
-            end
+            color = randcolor(rng)
             options[n2] = merge(options[n2], (color = color,))
         end
         if !(haskey(options[n1], :color))
-            if haskey(options[n2], :color)
-                color = options[n2].color == "tab:red" ? "tab:blue" : "tab:red"
-            else
-                color = "tab:red"
-            end
+            color = randcolor(rng)
             options[n1] = merge(options[n1], (color = color,))
         end        
     end
     if mod(length(names), 2) == 1
         n = names[end]
         if !(haskey(options[n], :color))
-            color = "tab:blue"
+            color = randcolor(rng)
             options[n] = merge(options[n], (color = color,))
         end
     end
