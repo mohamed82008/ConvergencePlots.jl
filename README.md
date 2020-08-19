@@ -50,7 +50,7 @@ using ConvergencePlots
 
 plot = ConvergencePlot(names = ["KKT residual", "|Δx|"])
 kkt_residual = 1 ./ (1:50)
-delta_x = kkt_residual .* 10rand()
+delta_x = sqrt.(kkt_residual)
 for i in 1:50
     sleep(1e-4)
     add_point!(plot, Dict("KKT residual" => kkt_residual[i], "|Δx|" => delta_x[i]))
