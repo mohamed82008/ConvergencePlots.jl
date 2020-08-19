@@ -11,7 +11,7 @@ using Pkg
 pkg"add https://github.com/mohamed82008/ConvergencePlots.jl"
 ```
 
-## Example
+## Usage
 
 First create an empty plot:
 ```julia
@@ -25,7 +25,7 @@ where `n` is the number of points.
 
 The keyword arguments you can pass to the `ConvergencePlot` constructor are:
 - `names`: a `Vector{String}` that has all the names of the convergence metrics to be plotted. The default value of `names` is `["Residual"]`.
-- `options`: a dictionary mapping each name in `names` to a `NamedTuple`. Each named tuple has the plotting options to pass to `PyPlot`, e.g. `(label = "KKT residual", ls = "--", marker = "+")`.
+- `options`: a dictionary mapping each name in `names` to a `NamedTuple`. Each named tuple has the plotting options to pass to `PyPlot`, e.g. `(label = "KKT residual", ls = "--", marker = "+")`. If `label` is not passed, it defaults to the corresponding name in `names`. You can also pass a single `NamedTuple` of options without the `label` option, and it will be used for all the names.
 - `show`: if `true` the empty figure will be displayed. This is `false` by default.
 
 After creating an empty plot, you can add points to it as follows:
@@ -42,3 +42,19 @@ To close the plot, call:
 ```julia
 closeplot!(plot)
 ```
+
+## Example
+
+```julia
+using ConvergencePlots
+
+plot = ConvergencePlot(names = ["KKT residual", "|Δx|"])
+kkt_residual = 1 ./ (1:50)
+delta_x = kkt_residual .* 10rand()
+for i in 1:50
+    sleep(1e-4)
+    add_point!(plot, Dict("KKT residual" => kkt_residual[i], "|Δx|" => delta_x[i]))
+end
+```
+
+![Figure](https://user-images.githubusercontent.com/19524993/90618355-3c4c0780-e253-11ea-9251-f90979377e6e.png)
