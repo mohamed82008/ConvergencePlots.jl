@@ -32,7 +32,11 @@ After creating an empty plot, you can add points to it as follows:
 ```julia
 add_point!(plot, Dict("Residual" => 1.0))
 ```
-where the second argument can contain one value for each name in `names`. Adding a point will display the plot by default. To stop the plot from displaying, set the `show` keyword argument to `false`.
+where the second argument can contain one value for each name in `names`. If only a single name exists, you can also use:
+```julia
+add_point!(plot, 1.0)
+```
+Adding a point will display the plot by default. To stop the plot from displaying, set the `show` keyword argument to `false`.
 
 To close the plot, call:
 ```julia
