@@ -20,8 +20,6 @@ function ConvergencePlot(
     options = nothing,
     show = false,
 )
-    was_interactive = PyPlot.isinteractive()
-    was_interactive && PyPlot.ioff()
     history = Dict(n => Float64[] for n in names)
     if options === nothing
         options = Dict(n => (label = n,) for n in names)
@@ -31,7 +29,6 @@ function ConvergencePlot(
     if show
         PyPlot.show(block=false)
     end
-    was_interactive && PyPlot.ion()
     return ConvergencePlot(fig, ax, history, options, npoints)
 end
 function add_point!(plot::ConvergencePlot, y::Real; show = true)
@@ -54,14 +51,16 @@ function add_point!(plot::ConvergencePlot, y::Dict; show = true)
 end
 function update_plot!(plot::ConvergencePlot; show = true)
     @unpack fig, ax, history, options = plot
-    ax.clear()
-    for k in keys(history)
-        ax.plot(1:length(history[k]), history[k]; options[k]...)
-    end
-    fig.canvas.draw()
-    fig.legend(loc=2)
-    if show
-        PyPlot.show(block=false)
+    keepinteractive() do
+        ax.clear()
+        for k in keys(history)
+            ax.plot(1:length(history[k]), history[k]; options[k]...)
+        end
+        fig.canvas.draw()
+        fig.legend(loc=2)
+        if show
+            PyPlot.show(block=false)
+        end
     end
     return plot
 end
@@ -72,10 +71,19 @@ function closeplot!(plot::ConvergencePlot)
     return plot
 end
 function emptyplot()
-    fig = PyPlot.figure()
-    ax = fig.add_subplot(111)
-    PyPlot.xlabel("Iteration")
+    local fig, ax
+    keepinteractive() do
+        fig = PyPlot.figure()
+        ax = fig.add_subplot(111)
+        PyPlot.xlabel("Iteration")
+    end
     return fig, ax
+end
+function keepinteractive(f)
+    was_interactive = PyPlot.isinteractive()
+    was_interactive && PyPlot.ioff()
+    f()
+    was_interactive && PyPlot.ion()
 end
 
 end
