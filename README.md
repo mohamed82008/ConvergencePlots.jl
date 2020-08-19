@@ -30,11 +30,11 @@ The keyword arguments you can pass to the `ConvergencePlot` constructor are:
 
 After creating an empty plot, you can add points to it as follows:
 ```julia
-add_point!(plot, Dict("Residual" => 1.0))
+addpoint!(plot, Dict("Residual" => 1.0))
 ```
 where the second argument can contain one value for each name in `names`. If only a single name exists, you can also use:
 ```julia
-add_point!(plot, 1.0)
+addpoint!(plot, 1.0)
 ```
 Adding a point will display the plot by default. To stop the plot from displaying, set the `show` keyword argument to `false`.
 
@@ -61,7 +61,7 @@ kkt = 1 ./ (1:50)
 Δf = 10 .* kkt .^ 2
 for i in 1:50
     sleep(1e-4)
-    add_point!(
+    addpoint!(
         plot,
         Dict(
             "KKT residual" => kkt[i],

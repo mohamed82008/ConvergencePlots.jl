@@ -1,8 +1,8 @@
 module ConvergencePlots
 
 export  ConvergencePlot,
-        add_point!,
-        update_plot!,
+        addpoint!,
+        updateplot!,
         closeplot!
 
 using PyPlot, Parameters, Random
@@ -31,12 +31,12 @@ function ConvergencePlot(
     return ConvergencePlot(fig, axs, names, history, options, npoints)
 end
 
-function add_point!(plot::ConvergencePlot, y::Real; show = true)
+function addpoint!(plot::ConvergencePlot, y::Real; show = true)
     @assert length(keys(plot.history)) == 1
     k = collect(keys(plot.history))[1]
-    return add_point!(plot, Dict(k => y), show = show)
+    return addpoint!(plot, Dict(k => y), show = show)
 end
-function add_point!(plot::ConvergencePlot, y::Dict; show = true)
+function addpoint!(plot::ConvergencePlot, y::Dict; show = true)
     @unpack history, npoints = plot
     for k in keys(y)
         if length(history[k]) < npoints
@@ -46,11 +46,11 @@ function add_point!(plot::ConvergencePlot, y::Dict; show = true)
             history[k][n] = y[k]
         end
     end
-    update_plot!(plot; show = show)
+    updateplot!(plot; show = show)
     return plot
 end
 
-function update_plot!(plot::ConvergencePlot; show = true)
+function updateplot!(plot::ConvergencePlot; show = true)
     @unpack fig, axs, names, history, options = plot
     keepinteractive() do
         for ax in axs
