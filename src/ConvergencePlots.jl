@@ -23,6 +23,13 @@ function ConvergencePlot(
     history = Dict(n => Float64[] for n in names)
     if options === nothing
         options = Dict(n => (label = n,) for n in names)
+    elseif options isa Dict
+        options = Dict(
+            n => haskey(options[n], :label) ? options[n] : merge(options[n], (label = n,))
+            for n in keys(options)
+        )
+    else
+        options = Dict(n => merge(options, (label = n,)) for n in names)
     end
     @assert keys(history) == keys(options)
     fig, ax = emptyplot()
