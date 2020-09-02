@@ -42,8 +42,8 @@ function addpoint!(plot::ConvergencePlot, y::Dict; show = true)
         if length(history[k]) < npoints
             push!(history[k], y[k])
         else
-            history[k][1:n-1] .= history[k][2:n]
-            history[k][n] = y[k]
+            history[k][1:npoints-1] .= history[k][2:npoints]
+            history[k][npoints] = y[k]
         end
     end
     updateplot!(plot; show = show)
