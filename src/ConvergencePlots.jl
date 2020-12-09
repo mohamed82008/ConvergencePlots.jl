@@ -14,29 +14,31 @@ mutable struct ConvergencePlot
     history::Dict
     options::Dict
     npoints::Int
+    figsize::Tuple{Int,Int}
 end
 function ConvergencePlot(
     npoints::Int = 100000;
     names = ["Residual"],
     options = nothing,
     show = false,
+    figsize = (20,10),
 )
     history = Dict(n => Float64[] for n in names)
     options = getoptions(names, options)
     @assert keys(history) == keys(options)
-    fig, axs = emptyplot(length(names))
+    fig, axs = emptyplot(length(names), figsize=figsize)
     if show
         PyPlot.show(block=false)
     end
-    return ConvergencePlot(fig, axs, names, history, options, npoints)
+    return ConvergencePlot(fig, axs, names, history, options, npoints, figsize)
 end
 
-function addpoint!(plot::ConvergencePlot, y::Real; show = true)
+function addpoint!(plot::ConvergencePlot, y::Real; kwargs...)
     @assert length(keys(plot.history)) == 1
     k = collect(keys(plot.history))[1]
-    return addpoint!(plot, Dict(k => y), show = show)
+    return addpoint!(plot, Dict(k => y), kwargs...)
 end
-function addpoint!(plot::ConvergencePlot, y::Dict; show = true)
+function addpoint!(plot::ConvergencePlot, y::Dict; update = true, kwargs...)
     @unpack history, npoints = plot
     for k in keys(y)
         if length(history[k]) < npoints
@@ -46,11 +48,25 @@ function addpoint!(plot::ConvergencePlot, y::Dict; show = true)
             history[k][npoints] = y[k]
         end
     end
-    updateplot!(plot; show = show)
+    update && updateplot!(plot; kwargs...)
     return plot
 end
 
-function updateplot!(plot::ConvergencePlot; show = true)
+function addpoints!(plot::ConvergencePlot, y::Dict; update = false, kwargs...)
+    @unpack history, npoints = plot
+    for k in keys(y)
+        if length(history[k]) + length(y[k]) <= npoints
+            append!(history[k], y[k])
+        else
+            history[k][1:npoints-length(y[k])] .= history[k][1+length(y[k]):npoints]
+            history[k][npoints-length(y[k])+1:end] = y[k]
+        end
+    end
+    update && updateplot!(plot; kwargs...)
+    return plot
+end
+
+function updateplot!(plot::ConvergencePlot; show = true, filename = nothing)
     @unpack fig, axs, names, history, options = plot
     keepinteractive() do
         for ax in axs
@@ -72,17 +88,18 @@ function updateplot!(plot::ConvergencePlot; show = true)
             PyPlot.show(block=false)
         end
     end
+    filename !== nothing && fig.savefig(filename)
     return plot
 end
 
 function closeplot!(plot::ConvergencePlot)
     PyPlot.close(plot.fig)
-    fig, axs = emptyplot(length(plot.names))
+    fig, axs = emptyplot(length(plot.names), figsize=plot.figsize)
     @pack! plot = fig, axs
     return plot
 end
 
-function emptyplot(ncurves)
+function emptyplot(ncurves; figsize=(20,10))
     if ncurves % 2 == 0
         nsubplots = (ncurves ÷ 2)
     else
@@ -90,7 +107,7 @@ function emptyplot(ncurves)
     end
     local fig, axs
     keepinteractive() do
-        fig, axs1 = PyPlot.subplots(nsubplots)
+        fig, axs1 = PyPlot.subplots(nsubplots, figsize=figsize)
         axs = []
         for i in 1:nsubplots
             ax1 = nsubplots == 1 ? axs1 : axs1[i]
